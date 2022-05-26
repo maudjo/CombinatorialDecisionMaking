@@ -1,16 +1,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import colors
-cmap = colors.ListedColormap(['peachpuff','pink','lightblue','thistle','lemonchiffon'])
+cmap = colors.ListedColormap(['peachpuff','pink','lightblue','thistle','lemonchiffon', 'peachpuff','pink','lightblue','thistle','lemonchiffon', 'peachpuff','pink','lightblue','thistle','lemonchiffon','peachpuff','pink','lightblue','thistle','lemonchiffon','peachpuff','pink','lightblue','thistle','lemonchiffon'])
 
 
-w=8
-l=8
-n=4
-c1=[3,3,0,0]
-c2=[3,5,0,3]
-c3=[5,3,3,0]
-c4=[5,5,3,3]
+w=10
+l=11
+n=6
+c1=[3,7,3,3]
+c2=[0,7,3,4]
+c3=[6,6,3,5]
+c4=[6,0,3,6]
+c5=[3,0,3,7]
+c6=[0,0,3,7]
 
 
 solution=[w,l,n,c1,c2,c3,c4]

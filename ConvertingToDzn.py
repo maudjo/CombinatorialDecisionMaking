@@ -5,24 +5,26 @@ def readfile(filename):
     file = open(filename, 'r')
     f = file.readlines()
     
-    rectangles={}
+    rectangles={"dx":[], "dy":[]}
     i=0
     
     for line in f:
         if i==0:
-           width_board = int(line)
            rectangles["w"] = int(line)
         elif i==1:
-            num_fig = int(line)
             rectangles["n"] = int(line)
         else:
             line=line.strip()
             line=line.split(' ')
-            rect=[ int(line[0]), int(line[-1])]
-            rectangles["r"+str(i)] = rect
+            rectx=int(line[0])
+            recty= int(line[-1])
+            rectangles["dx"].append(rectx)
+            rectangles["dy"].append(recty)
         i=i+1
         
     return rectangles
+
+print(readfile("/Users/maudjohansson/Combinatorial/Project/CombinatorialDecisionMaking/instances/ins-2.txt"))
 
 def ConvertToDzn(instance, data):
     file = open("/Users/maudjohansson/Combinatorial/Project/CombinatorialDecisionMaking/newInstances/"+ instance, "w+")
@@ -33,8 +35,8 @@ initial_count = 0
 data=[]
 
 for path in pathlib.Path("/Users/maudjohansson/Combinatorial/Project/CombinatorialDecisionMaking/instances").iterdir():
-    #if path.is_file():
-     #   initial_count += 1
+    if path.is_file():
+        initial_count += 1
     data.append(path)
 
 
