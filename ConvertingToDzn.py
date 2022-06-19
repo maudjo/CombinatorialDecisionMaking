@@ -5,7 +5,7 @@ def readfile(filename):
     file = open(filename, 'r')
     f = file.readlines()
     rectangles={"dx":[], "dy":[]}
-    geost ={"rect_size":"|", "rect_offset": "|", "shape": [], "valid_shapes": []}
+    geost ={"rectOffsets": "|", "shape": [], "validshapes": [],"dx":[], "dy":[]}
     i=0
     
     for line in f:
@@ -15,12 +15,12 @@ def readfile(filename):
         elif i==1:
             rectangles["n"] = int(line)
             geost["n"] = int(line)
+            geost["o"]=2*int(line)
             k = 0
             for j in range(int(line)):
-                geost["rect_offset"]+= "0,0 |"
                 geost["shape"].append({j+1 + k})
                 geost["shape"].append({j+2+k})
-                geost["valid_shapes"].append("{" + str(j+1 + k) +"," + str(j+2 + k) +"}")
+                geost["validshapes"].append("{" + str(j+1 + k) +"," + str(j+2 + k) +"}")
                 k +=1
         else:
             line=line.strip()
@@ -29,17 +29,18 @@ def readfile(filename):
             recty= int(line[-1])
             rectangles["dx"].append(rectx)
             rectangles["dy"].append(recty)
-            geost["rect_size"] += str(rectx) + "," + str(recty) + "|"
-            geost["rect_size"] += str(recty) + "," + str(rectx) + "|"
+            geost["dx"].append(rectx)
+            geost["dy"].append(recty)
+            geost["rectOffsets"]+= "0,0," + str(rectx) + "," + str(recty) + "|" 
+            geost["rectOffsets"]+= "0,0," + str(recty) + "," + str(rectx) + "|"        
         i=i+1
     
-    geost["rect_offset"] = [geost["rect_offset"] + geost["rect_offset"]]
-    geost["rect_size"] = [geost["rect_size"]]
+    geost["rectOffsets"] = [geost["rectOffsets"]]
         
     return rectangles, geost
 
 rectangles, geost = readfile("/Users/maudjohansson/Combinatorial/Project/CombinatorialDecisionMaking/instances/ins-2.txt")
-print(readfile("/Users/maudjohansson/Combinatorial/Project/CombinatorialDecisionMaking/instances/ins-2.txt"))
+
 
 def ConvertToDzn(instance, data, type = None):
     if(type=="rectangles"):
@@ -47,8 +48,8 @@ def ConvertToDzn(instance, data, type = None):
         pymzn.dict2dzn(data, fout='/Users/maudjohansson/Combinatorial/Project/CombinatorialDecisionMaking/newInstances/'+instance)
         file.close()
     else:
-        file = open("/Users/maudjohansson/Combinatorial/Project/CombinatorialDecisionMaking/newInstances2/"+ instance, "w+")
-        pymzn.dict2dzn(data, fout='/Users/maudjohansson/Combinatorial/Project/CombinatorialDecisionMaking/newInstances2/'+instance)
+        file = open("/Users/maudjohansson/Combinatorial/Project/CombinatorialDecisionMaking/newInstancesRotation/"+ instance, "w+")
+        pymzn.dict2dzn(data, fout='/Users/maudjohansson/Combinatorial/Project/CombinatorialDecisionMaking/newInstancesRotation/'+instance)
         file.close()
 
 data=[]
@@ -59,5 +60,4 @@ for path in pathlib.Path("/Users/maudjohansson/Combinatorial/Project/Combinatori
 for i in range(len(data)):
     rectangles, geost = readfile(data[i])
     #ConvertToDzn("ins"+str(i+1)+".dzn", rectangles, "rectangles")
-    ConvertToDzn("ins"+str(i+1)+".dzn", geost)
-    #print(data[i])
+    ConvertToDzn("insRot"+str(i+1)+".dzn", geost)
