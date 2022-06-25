@@ -23,7 +23,7 @@ array[Circuits] of var 0..w: startX;
 array[Circuits] of var 0..maxHeight: startY;
 
 
-% the height of the rectangle cant be bigger than the height of all the circuits combined 
+% circuits must be inside of rectangle 
 constraint forall(c in Circuits)(startY[c] +dy[c] <= endY);
 
 % circuits must be inside of rectangle 

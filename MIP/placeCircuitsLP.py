@@ -1,9 +1,10 @@
 import gurobipy as gp 
+import matplotlib.pyplot as plt
 
-n = 5
+n = 12
 w = 13
-dx = [3,3,3,3,3]
-dy = [3,4,5,6,7]
+dx = [3,3,3,3,3,3,4,3,2,4,2,5]
+dy = [3,4,5,6,7,8,4,3,4,2,3,2]
 
 
 
@@ -21,6 +22,7 @@ def placeRect(n,w,dx,dy):
 
 
     b11 = [[[model.addVar( vtype='B') for i in range(4)] for j in X]for k in X]
+
 
     M1 = w
     M2 = h
@@ -44,20 +46,32 @@ def placeRect(n,w,dx,dy):
             sumb = 0; 
             for k in range(4):
                 sumb +=  b11[c][j][k]
-                model.addConstr(sumb <=3)
+            model.addConstr(sumb <=3)
+        if c<j and dx[c]*dy[c] < dx[j]*dy[j]:
+            model.addConstr(startX[j] <= startX[c])
+            model.addConstr(startY[j] <= startY[c])
+
     
     model.setObjective(h, gp.GRB.MINIMIZE)
+    #model.tune()
     model.optimize()
 
 
     for j in Circuits:
         print("startX:" + str(startX[j].X) + "startY:" + str(startY[j].X))
+
+    print(h)
+    return h, startX,startY 
+
   
 
 #sizes_circuits, n_circuits, width_plate = readfile("/Users/maudjohansson/Combinatorial/Project/CombinatorialDecisionMaking/instances/ins-1.txt")
 
 
 print(placeRect(n,w,dx,dy))
+h , startX, startY= placeRect(n,w,dx,dy)
+
+
 
 
 
