@@ -22,11 +22,9 @@ var minHeight..maxHeight:endY;
 array[Circuits] of var 0..w: startX;
 array[Circuits] of var 0..maxHeight: startY;
 
-% RAGNA: jeg skjønner ikke helt denne kodelinjen lenger... Jeg synes det ser ut som at det ikke er en summering her?
-% the height of the rectangle cant be bigger than the height of all the circuits combined 
-constraint forall(c in Circuits)(startY[c] +dy[c] <= endY);
 
 % circuits must be inside of rectangle 
+constraint forall(c in Circuits)(startY[c] +dy[c] <= endY);
 constraint forall(c in Circuits)(startX[c] +dx[c] <= w );
 
 %add redundant cumulativ constraints to improve propagation
@@ -79,9 +77,6 @@ solve minimize endY;
 
 %result
 output [ "x-koordinates = \(startX)\nwidth = \(w)\ny-koordinates = \(startY)\nheight = \(endY)\n" ];
-
-
-
 
 
 
