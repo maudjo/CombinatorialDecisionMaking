@@ -11,15 +11,8 @@ dy = [3, 4, 5, 6, 7, 8, 9, 3]
 
 # Changing boundary conditions as rotation is possible
 def placeRectWithRot(n,w,dx,dy):
-    #maxHeight = sum(dy);
-    #minHeight = max(dy);
-    findMaxHeight=np.zeros(n)
-    for c in range(n):
-        if dx[c]>dy[c]:
-            findMaxHeight[c]=dx[c]
-        else: 
-            findMaxHeight[c]=dy[c]
-    maxHeight = sum(findMaxHeight)   
+    maxHeight = sum(dy);
+    #minHeight = max(dy);  
     minHeight = min(min(dy),min(dx))
 
     (Circuits, X, Y) = (range(n), range(len(dx)), range(len(dy)))
