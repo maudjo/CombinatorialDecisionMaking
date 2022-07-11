@@ -1,0 +1,247 @@
+from itertools import combinations
+
+from z3 import *
+import matplotlib.pyplot as plt
+
+import time
+import fileinput
+
+def readfile(filename):
+    file = open(filename, 'r')
+    f = file.readlines()
+    
+    rectangles=[]
+    i=0
+    
+    for line in f:
+        if i==0:
+           width_board = int(line)
+        elif i==1:
+            num_fig = int(line)
+        else:
+            line=line.strip()
+            line=line.split(' ')
+            rect=[ int(line[0]), int(line[-1])]
+            rectangles.append(rect) 
+        i=i+1
+        
+    return rectangles, num_fig, width_board
+
+
+
+def evaluate_instance(n_instance, filename):
+    
+    sizes_circuits, n, w = readfile(filename)
+    
+    
+    input_order, sorted_sizes_circuits = zip(*[(index, value) for index, value in
+                                                sorted(enumerate(sizes_circuits), reverse=True,
+                                                      key=lambda x: x[1][0] * x[1][1])])
+
+    params_instance = dict()
+    params_instance["width"] = w
+    params_instance["n_rects"] = n
+    #params_instance["dx"] = [sizes[0] for sizes in sizes_circuits]
+    #params_instance["dy"] = [sizes[1] for sizes in sizes_circuits]
+    params_instance["dx"] = [sizes[0] for sizes in sorted_sizes_circuits]
+    params_instance["dy"] = [sizes[1] for sizes in sorted_sizes_circuits]
+
+    s = Solver()
+    
+    start = time.time()
+    #positions, height_chip = format_solution(solve_2SSP(s, params_instance))
+    solution = solve_2SSP(s, params_instance)
+    end = time.time()
+    
+    startX = solution["X"]
+    startY = solution["Y"]
+    endY = solution["HEIGHT"]
+    
+    
+
+    print("Instance solved in {}".format(end - start))
+    
+    return startX, startY, endY, w, n, sizes_circuits
+
+
+def at_least_one(bool_vars):
+    return Or(bool_vars)
+
+def at_most_one(bool_vars):
+    return [Not(And(pair[0], pair[1])) for pair in combinations(bool_vars, 2)]
+
+def exactly_one(solver, bool_vars):
+    solver.add(at_most_one(bool_vars))
+    solver.add(at_least_one(bool_vars))
+
+def indomain(box_size, rect_size):
+    return box_size - rect_size >= 0
+
+
+def solve_2SSP(solver, params):
+    start1=time.time()
+    # init the variables from the params
+    # width of bounding box (= circuit plate).
+    w = params["width"]
+    # number of rectangles (= circuits).
+    n = params["n_rects"]
+    # widths of rectangles
+    dx = params["dx"]
+    # heights of rectangles
+    dy = params["dy"]
+    
+    #boundaries 
+    A_c = 0
+    for i in range(n):
+        A_c += dx[i]*dy[i]
+    
+    if A_c % w==0:
+        min_h = int(A_c/w)
+    else:
+        min_h = int(A_c/w)+1
+    max_h = sum(dy)    
+
+    # Variables for 2SSP
+    # ph_o is true if all rectangles are packed at the downward to the height o.
+    ph = [Bool(f"ph_{o}") for o in range(min_h, max_h)]
+    sol = {}
+
+    for o in range(max_h-min_h):
+        H = o+min_h
+        # Variables for 2OPP
+        lr = [[Bool(f"lr^{H}_{i}_{j}") for j in range(n)] for i in range(n)]
+        ud = [[Bool(f"ud^{H}_{i}_{j}") for j in range(n)] for i in range(n)]
+        px = [[Bool(f"px^{H}_{i}_{e}") for e in range(w - dx[i] + 1)] for i in range(n)]
+        py = [[Bool(f"py^{H}_{i}_{f}") for f in range(H - dy[i] + 1)] for i in range(n)]
+
+        #Used for getting the solution later
+        sol[H] = {"lr": lr, "ud": ud, "px": px, "py": py}
+
+        # order encoding for px and py (1)
+        for i in range(n):
+            [solver.add(Or(Not(px[i][e]), px[i][e + 1])) for e in range(len(px[i]) - 1)]
+            [solver.add(Or(Not(py[i][f]), py[i][f + 1])) for f in range(len(py[i]) - 1)]
+
+
+        # domain encoding for px and py
+        for i in range(n):
+            if not indomain(w, dx[i]):
+                solver.add(Not(px[i][len(px[i]) - 1]))
+            else:
+                solver.add(Or(ph[o], px[i][len(px[i]) - 1]))
+            if not indomain(H, dy[i]):
+                solver.add(Not(py[i][len(py[i]) - 1]))
+            else:
+                solver.add(Or(ph[o], py[i][len(py[i]) - 1]))
+
+        # non overlapping constraint 
+        for i in range(n):
+            for j in range(n):
+                if i < j:
+                    # domain constraint for px and py in relation to lr and ud
+                    if indomain(len(px[j]) - 1, dx[i] - 1): solver.add(Or(Not(lr[i][j]), Not(px[j][dx[i] - 1])))
+                    else: solver.add(Or(Not(lr[i][j]), Not(px[j][len(px[j]) - 1])))
+                    if indomain(len(px[i]) - 1, dx[j] - 1): solver.add(Or(Not(lr[j][i]), Not(px[i][dx[j] - 1])))
+                    else: solver.add(Or(Not(lr[j][i]), Not(px[i][len(px[i]) - 1])))
+                    if indomain(len(py[j]) - 1, dy[i] - 1): solver.add(Or(Not(ud[i][j]), Not(py[j][dy[i] - 1])))
+                    else: solver.add(Or(Not(ud[i][j]), Not(py[j][len(py[j]) - 1])))
+                    if indomain(len(py[i]) - 1, dy[j] - 1): solver.add(Or(Not(ud[j][i]), Not(py[i][dy[j] - 1])))
+                    else: solver.add(Or(Not(ud[j][i]), Not(py[i][len(py[i]) - 1])))
+
+                    #symmetries for the problem
+                    if (dx[i], dy[i]) == (dx[j], dy[j]):
+                    
+                    # Rectangles of same size symmetry
+                        solver.add(Or(lr[i][j], ud[i][j], ud[j][i]))
+                        solver.add(Or(Not(ud[i][j]), lr[j][i]))
+     
+                        [solver.add(Or(ph[o], Not(lr[i][j]), px[i][e], Not(px[j][e + dx[i]]))) for e in range(w - dx[i]) if indomain(len(px[j]) - 1, e + dx[i])]
+                     
+                        [solver.add(Or(ph[o], Not(ud[i][j]), py[i][f], Not(py[j][f + dy[i]]))) for f in range(H - dy[j]) if indomain(len(py[j]) - 1, f + dy[i])]
+                 
+                        [solver.add(Or(ph[o], Not(ud[j][i]), py[j][f], Not(py[i][f + dy[j]]))) for f in range(H - dy[j]) if indomain(len(py[i]) - 1, f + dy[j])]
+                        
+                    elif dx[i]>(w-dx[j])/2:
+                
+                    # horisontal symmetry
+                        solver.add(Or(lr[j][i], ud[i][j], ud[j][i]))
+                     
+                        [solver.add(Or(ph[o], Not(lr[j][i]), px[j][e], Not(px[i][e + dx[j]]))) for e in range(w - dx[i]) if indomain(len(px[i]) - 1, e + dx[j])]
+                     
+                        [solver.add(Or(ph[o], Not(ud[i][j]), py[i][f], Not(py[j][f + dy[i]]))) for f in range(H - dy[j]) if indomain(len(py[j]) - 1, f + dy[i])]
+                 
+                        [solver.add(Or(ph[o], Not(ud[j][i]), py[j][f], Not(py[i][f + dy[j]]))) for f in range(H - dy[j]) if indomain(len(py[i]) - 1, f + dy[j])]
+                    else:
+                        
+                    # case with no symmetry 
+                        solver.add(Or(lr[i][j], lr[j][i], ud[i][j], ud[j][i]))
+    
+                        [solver.add(Or(ph[o], Not(lr[i][j]), px[i][e], Not(px[j][e + dx[i]]))) for e in
+                        range(w - dx[i]) if indomain(len(px[j]) - 1, e + dx[i])]
+    
+                        [solver.add(Or(ph[o], Not(lr[j][i]), px[j][e], Not(px[i][e + dx[j]]))) for e in
+                        range(w - dx[i]) if indomain(len(px[i]) - 1, e + dx[j])]
+    
+                        [solver.add(Or(ph[o], Not(ud[i][j]), py[i][f], Not(py[j][f + dy[i]]))) for f in
+                        range(H - dy[j]) if indomain(len(py[j]) - 1, f + dy[i])]
+    
+                        [solver.add(Or(ph[o], Not(ud[j][i]), py[j][f], Not(py[i][f + dy[j]]))) for f in
+                        range(H - dy[j]) if indomain(len(py[i]) - 1, f + dy[j])]
+    
+        # constraint for 2SSP variables 
+        if H+1>= max_h: 
+            solver.add(ph[o])
+        exactly_one(solver, ([Not(ph[o]) for o in range(len(ph))]))
+
+    for H, vars in sol.items():
+        lr, ud, px, py = vars.values()
+        o=H-min_h
+        if H + 1 < max_h:
+            # order encoding for 2OPP 
+            solver.add(Or([Not(py[i][len(py[i]) - 1]) for i in range(n)]+[And([sol[H + 1]["py"][i][len(sol[H + 1]["py"][i]) - 1] for i in range(n)] + [ph[o+1]])]))
+            # constraint to ensure that the first solution is the only valid one
+            solver.add(Or([And([py[i][len(py[i]) - 1] for i in range(n)])]+[Not(sol[H + 1]["py"][i][len(sol[H + 1]["py"][i]) - 1]) for i in range(n)] + [Not(ph[o+1])]))
+    startX = []
+    startY = []
+    if solver.check() == sat:
+        model = solver.model()
+        for o in range(max_h-min_h):
+            if model.evaluate(ph[o]) == False:
+                end1=time.time()
+                print(end1-start1)
+                print(f"Found best height at {o+min_h}"); break
+
+        H = o + min_h
+        lr, ud, px, py = sol[H].values()
+        if H != max_h-1:
+            for i in range(n):
+                for e in range(len(px[i])):
+                    if (model.evaluate(px[i][e]) == True):
+                        startX.append(e); 
+                        break
+                for f in range(len(py[i])):
+                    if (model.evaluate(py[i][f]) == True): 
+                        startY.append(f); 
+                        break
+    else:
+        print("Failed")
+    return {"X": startX, "Y": startY, "HEIGHT": H}
+
+
+def writeToFile(instance, startX, startY, endY, w, n, sizes_circuits):
+    file = open("/Users/larse/Onedrive - NTNU/Documents/Combinatorial Decision Making and Optimization/Pyton prosjekt//resultsSAT/"+ instance, "w+")
+    file.write(str(w) + " " + str(endY) + "\n")
+    file.write(str(n)+ "\n")
+    for i in range (int(n)):
+        file.write(str(sizes_circuits[i][0]) +" " + str(sizes_circuits[i][1])+" "+str(startX[i])+" "+str(startY[i]) + "\n")
+    file.close()
+
+
+instance_number = 10
+filename = "ins-"+ str(instance_number) +".txt"
+
+startX, startY, endY, w, n, sizes_circuits = evaluate_instance(instance_number,filename)
+
+ 
+
+#writeToFile("out-10.txt", startX, startY, endY, w, n, sizes_circuits)
