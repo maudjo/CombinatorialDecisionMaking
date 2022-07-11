@@ -11,7 +11,7 @@
  decision making and optimization. We have one file.
 
  # Requirements
- To run the code you need to use the program python, and the solver configuration "Chuffed 0.10.4"
+ To run the code you need to use a program compatible with python, we have used Spyder. You also need to install z-3 solver. 
 
 
  ## No Rotation
