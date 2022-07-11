@@ -3,10 +3,10 @@ import gurobipy as gp
 import matplotlib.pyplot as plt
 import numpy as np
 
-n = 8
-w = 12
-dx = [3, 3, 3, 3, 3, 3, 3, 6]
-dy = [3, 4, 5, 6, 7, 8, 9, 3]
+n = 16
+w = 20
+dx = [3, 3,3,4,3,5,3,2,1,5,4,3,2,5,6,7]
+dy = [3,3, 6,4,3,2,5,4,3,2,1,3,6,7,8,8]
 
 
 # Changing boundary conditions as rotation is possible
@@ -62,13 +62,12 @@ def placeRectWithRot(n,w,dx,dy):
     for c in Circuits:
         for j in Circuits:
             sumb = 0; 
-            sumb2 = 0; 
             for k in range(4):
                 sumb +=  b11[c][j][k]
             model.addConstr(sumb <=3)
-        #if c<j and dx[c]*dy[c] < dx[j]*dy[j]:
-         #   model.addConstr(startX[j] <= startX[c])
-          #  model.addConstr(startY[j] <= startY[c])
+        if c<j and dx[c]*dy[c] < dx[j]*dy[j]:
+            model.addConstr(startX[j] <= startX[c])
+            model.addConstr(startY[j] <= startY[c])
 
     model.setObjective(h, gp.GRB.MINIMIZE)
     model.optimize()
@@ -84,4 +83,3 @@ def placeRectWithRot(n,w,dx,dy):
 
 
 print(placeRectWithRot(n,w,dx,dy))
-h , startX, startY= placeRectWithRot(n,w,dx,dy)

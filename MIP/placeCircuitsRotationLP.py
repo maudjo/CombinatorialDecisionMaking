@@ -32,7 +32,7 @@ def placeRectWithRot(n,w,dx,dy):
     for c in Circuits:
         #all rectangles should be inside of plates length and final height h 
         model.addConstr(startX[c] + dx[c] <= w)
-        model.addConstr(startY[c] + dy[c] <= h)
+        #model.addConstr(startY[c] + dy[c] <= h)
         #non overlapping constraint, using bigM and binary variables instead of the or condition 
         for j in Circuits:
             if c <j:

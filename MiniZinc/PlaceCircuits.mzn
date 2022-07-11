@@ -49,17 +49,17 @@ constraint diffn(startX, startY, dx,dy);
 
 
 %symmetry breaking, add lexicographical ordering on circuits of same size
-array[int] of int: EqualCircuits = [
-  c | c in Circuits, d in Circuits where c != d /\ dx[c] = dx[d] /\ dy[c] = dy[d]]; 
+%array[int] of int: EqualCircuits = [
+%  c | c in Circuits, d in Circuits where c != d /\ dx[c] = dx[d] /\ dy[c] = dy[d]]; 
 
-constraint forall(c in Circuits)(
-  if length(EqualCircuits) > 1 /\ c in EqualCircuits then 
-    forall(j in EqualCircuits where j>c)(
-      if dx[c] = dx[j] then 
-        lex_greater([startX[j], startY[j]],[startX[c], startY[c]])
-      else true endif 
-    )else true endif
-);
+%constraint forall(c in Circuits)(
+%  if length(EqualCircuits) > 1 /\ c in EqualCircuits then 
+%    forall(j in EqualCircuits where j>c)(
+%      if dx[c] = dx[j] then 
+%        lex_greater([startX[j], startY[j]],[startX[c], startY[c]])
+%      else true endif 
+%    )else true endif
+%);
  
 
 %order the circuits from biggest to smallest

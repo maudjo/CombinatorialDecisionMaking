@@ -39,11 +39,9 @@ def readfile(filename):
         
     return rectangles, geost
 
-rectangles, geost = readfile("/Users/maudjohansson/Combinatorial/Project/CombinatorialDecisionMaking/instances/ins-2.txt")
-
 
 def ConvertToDzn(instance, data, type = None):
-    if(type=="rectangles"):
+    if(type=="noRot"):
         file = open("/Users/maudjohansson/Combinatorial/Project/CombinatorialDecisionMaking/newInstances/"+ instance, "w+")
         pymzn.dict2dzn(data, fout='/Users/maudjohansson/Combinatorial/Project/CombinatorialDecisionMaking/newInstances/'+instance)
         file.close()
@@ -58,6 +56,6 @@ for path in pathlib.Path("/Users/maudjohansson/Combinatorial/Project/Combinatori
     data.append(path)
 
 for i in range(len(data)):
-    rectangles, geost = readfile(data[i])
-    #ConvertToDzn("ins"+str(i+1)+".dzn", rectangles, "rectangles")
-    ConvertToDzn("insRot"+str(i+1)+".dzn", geost)
+    noRot, geost = readfile(data[i])
+    #ConvertToDzn("ins"+str(i+1)+".dzn", noRot, "noRot")
+    #ConvertToDzn("insRot"+str(i+1)+".dzn", geost)
