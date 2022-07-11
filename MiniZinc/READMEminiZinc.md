@@ -43,7 +43,6 @@
  Where x-koordinates and y-koordinates are the koordinates where the rectangles are placed in the optimal solution
 
  ## Rotation:
- -------------
  MiniZinc code: PlaceCircuitsWithRotation.mzn
  Input code: insRotX.dzn, X:the number of the instance
  
