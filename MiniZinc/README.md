@@ -73,4 +73,4 @@
  kind = [k_1, .. , k_n];
  
  Where x and y are the koordinates where the rectangles are placed in the optimal solution
- Kind shows whether the rectangle is rotated or not. Odd numbers mean it is rotated, while even numbers are not rotated.
+ Kind shows whether the rectangle is rotated or not. Even numbers mean it is rotated, while odd numbers are not rotated.
