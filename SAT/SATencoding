@@ -8,6 +8,7 @@ import time
 import fileinput
 
 
+
 def display_solution(title, sizes_plate, n_circuits, sizes_circuits, pos_circuits):
     fig, ax = plt.subplots()
     cmap = plt.cm.get_cmap('hsv', n_circuits)
@@ -279,3 +280,9 @@ if __name__ == '__main__':
     #     evaluate_instance(i)
 
     evaluate_instance(N_INSTANCE,filename)
+
+N_INSTANCE = 7
+filename = "ins-"+ str(N_INSTANCE) +".txt"
+    # for i in range(1, 41):
+    #     evaluate_instance(i)
+
