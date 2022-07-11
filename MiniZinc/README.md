@@ -1,27 +1,20 @@
-README FOR CONSTRAINT PROGRAMMING CODE IN VLSI DESIGN PROJECT
+# VLSI Design Project 
 
-
-
- CONTENTS OF THIS FILE
- ---------------------
- * Introduction
- * Requirements
+## Contents
+- Introduction
+- Requirements
    - No rotation
    - Rotation
 
-
- INTRODUCTION
- ------------
+ # Introduction
  This code is used for the constraint programming models in our project in combinatorial
  decision making and optimization. We have two files, one for rotation and one without.
 
- REQUIREMENTS
- ------------
+ # Requirements
  To run the code you need to use the program MiniZinc, and the solver configuration "Chuffed 0.10.4"
 
 
- NO ROTATION:
- -------------
+ ## No Rotation
  MiniZinc code: PlaceCircuitsSym.mzn
  Input code: insX.dzn, X:the number of the instance
 
@@ -49,8 +42,7 @@ README FOR CONSTRAINT PROGRAMMING CODE IN VLSI DESIGN PROJECT
  
  Where x-koordinates and y-koordinates are the koordinates where the rectangles are placed in the optimal solution
 
- ROTATION:
- -------------
+ ## Rotation:
  MiniZinc code: PlaceCircuitsWithRotation.mzn
  Input code: insRotX.dzn, X:the number of the instance
  
@@ -81,4 +73,4 @@ README FOR CONSTRAINT PROGRAMMING CODE IN VLSI DESIGN PROJECT
  kind = [k_1, .. , k_n];
  
  Where x and y are the koordinates where the rectangles are placed in the optimal solution
- Kind shows whether the rectangle is rotated or not. Odd numbers mean it is rotated, while even numbers are not rotated.
+ Kind shows whether the rectangle is rotated or not. Even numbers mean it is rotated, while odd numbers are not rotated.
