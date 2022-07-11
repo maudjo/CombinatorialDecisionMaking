@@ -67,12 +67,12 @@ def placeRect(n,w,dx,dy):
                 sumb +=  bin[c][j][k]
             model.addConstr(sumb <=3)
         #sorting the rectangles so that the biggest rectangles are placed first 
-            if c<j and dx[c]*dy[c] < dx[j]*dy[j]:
-                model.addConstr(startX[j] <= startX[c])
-                model.addConstr(startY[j] <= startY[c])
+        if c<j and dx[c]*dy[c] < dx[j]*dy[j]:
+              model.addConstr(startX[j] <= startX[c])
+              model.addConstr(startY[j] <= startY[c])
     
     #symmetry breaking constraint
-    model.addConstr(max(startX) <= (1/2)*(w-dx[0]))
+    model.addConstr(startX[0] <= (1/2)*(w-dx[0]))
 
     
     model.setObjective(endY, gp.GRB.MINIMIZE)
@@ -91,7 +91,7 @@ def placeRect(n,w,dx,dy):
 
   
 
-rect = readfile("/Users/maudjohansson/Combinatorial/Project/CombinatorialDecisionMaking/instances/ins-1.txt")
+rect = readfile("/Users/maudjohansson/Combinatorial/Project/CombinatorialDecisionMaking/instances/ins-34.txt")
 
 endY, startX, startY= placeRect(rect["n"],rect["w"],rect["dx"],rect["dy"])
 
@@ -104,7 +104,7 @@ def writeToFile(instance):
         file.write(str(rect["dx"][i]) +" " + str(rect["dy"][i])+" "+str(startX[i])+" "+str(startY[i]) + "\n")
     file.close()
 
-#writeToFile("out-1.txt")
+writeToFile("out-34.txt")
 
 
 
